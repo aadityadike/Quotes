@@ -1,21 +1,22 @@
 "use client";
-import { getProviders, signIn, signOut } from "next-auth/react";
+
+import { getProviders, signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const Nav = () => {
-  const isUserLoggedIN = true;
-  const [provider, setProvider] = useState(null);
+  const { data: session } = useSession();
+  const [providers, setProviders] = useState(null);
   const [toggleDropDown, setToggleDropDown] = useState(false);
 
   useEffect(() => {
-    const fetchProviders = async () => {
+    (async () => {
       const response = await getProviders();
-      setProvider(response);
-    };
-    fetchProviders();
+      setProviders(response);
+    })();
   }, []);
+
   return (
     <nav className="flex-between w-full mb-16 pt-3">
       <Link href="/" className="flex gap-2 flex-center">
@@ -32,7 +33,7 @@ const Nav = () => {
       {/* Desktop Navigation */}
       {/* If the user is loggedIn */}
       <div className="sm:flex hidden">
-        {isUserLoggedIN ? (
+        {session?.user ? (
           <div className="flex gap-3 md:gap-5">
             <Link href="/create-prompt" className="black_btn">
               Create Post
@@ -53,8 +54,8 @@ const Nav = () => {
           </div>
         ) : (
           <>
-            {provider &&
-              Object.values(provider).map((provider) => {
+            {providers &&
+              Object.values(providers).map((provider) => (
                 <button
                   type="button"
                   key={provider.name}
@@ -62,8 +63,8 @@ const Nav = () => {
                   className="black_btn"
                 >
                   Sign In
-                </button>;
-              })}
+                </button>
+              ))}
           </>
         )}
       </div>
@@ -71,7 +72,7 @@ const Nav = () => {
       {/* sm:hidden - hidden will not apply on sm (smaller screens) it will apply after sm reaches its breakpoint which is 640. */}
       {/* max-sm:hidden - hidden will apply on sm (smaller screens).  */}
       <div className="sm:hidden flex relative">
-        {isUserLoggedIN ? (
+        {session?.user ? (
           <div className="flex">
             <Image
               src="/assets/images/logo.svg"
@@ -79,7 +80,7 @@ const Nav = () => {
               height={37}
               className="rounded-full"
               alt="profile"
-              onClick={() => setToggleDropDown((prev) => !prev)}
+              onClick={() => setToggleDropDown(!toggleDropDown)}
             />
 
             {toggleDropDown && (
@@ -112,8 +113,8 @@ const Nav = () => {
           </div>
         ) : (
           <>
-            {provider &&
-              Object.values(provider).map((provider) => {
+            {providers &&
+              Object.values(providers).map((provider) => (
                 <button
                   type="button"
                   key={provider.name}
@@ -121,8 +122,8 @@ const Nav = () => {
                   className="black_btn"
                 >
                   Sign In
-                </button>;
-              })}
+                </button>
+              ))}
           </>
         )}
       </div>
